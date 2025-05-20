@@ -1,0 +1,16 @@
+{
+  "name": "jsscratchwrapper",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "bringupyourpost",
+  "license": "ISC",
+  "description": "\"It uhhh is a scratch wrapper js\"",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "cheerio": "^1.0.0"
+  }
+}
