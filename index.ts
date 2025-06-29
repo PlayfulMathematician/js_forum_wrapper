@@ -1,32 +1,33 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
-interface ForumObj {
+interface ForumTopic {
   title: string | null;
   link: string | undefined;
   owner: string | null;
 }
 
-async function scrapePage(): Promise<ForumObj[]> {
+async function scrapeTopicPage(page: number, category: number): Promise<ForumTopic[]> {
   try {
-    const { data } = await axios.get('https://scratch.mit.edu/discuss/1');
+    const url = `https://scratch.mit.edu/discuss/${category}/?page=${page}`;
+    const { data } = await axios.get(url);
     const $ = cheerio.load(data);
-    const frontPage: ForumObj[] = [];
+    const frontPage: ForumTopic[] = [];
+
     $('tr').slice(1).each((_, row) => {
       const relevantTd = $(row).find('td').eq(0);
       const link = relevantTd.find('a');
-      const forum_link = link.attr('href');
-      const forum_title = link.html();
-      const ownerSpan = relevantTd.find('span').html();
-      const forum_owner = ownerSpan ? ownerSpan.slice(3) : null;
-      const forumObj: ForumObj = {
-        title: forum_title,
+      const forum_link = link.attr('href') ? `https://scratch.mit.edu${link.attr('href')}` : undefined;
+      const forum_title = link.text().trim();
+      const ownerRaw = relevantTd.find('span').text().trim();
+      const forum_owner = ownerRaw.replace(/^by\s+/i, '') || null;
+      frontPage.push({
+        title: forum_title || null,
         link: forum_link,
         owner: forum_owner,
-      };
-      frontPage.push(forumObj);
+      });
     });
-    console.log(frontPage);
+
     return frontPage;
   } catch (error) {
     console.error('Error fetching the page:', error);
@@ -34,4 +35,4 @@ async function scrapePage(): Promise<ForumObj[]> {
   }
 }
 
-scrapePage();
+scrapeTopicPage(1, 1)
